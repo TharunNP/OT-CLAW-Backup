@@ -1,0 +1,24 @@
+# Pymodbus simulator — the default safe lab target.
+#
+# Start:  docker compose up -d
+# Stop:   docker compose down
+# Logs:   docker compose logs -f
+#
+# Listens on the host's :502 (Modbus TCP).
+# Override port by setting MODBUS_PORT in environment or .env file.
+
+services:
+  lab-target:
+    image: oitc/modbus-server:latest
+    container_name: lab-target
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      # Pymodbus-server identification strings (visible via Report Slave ID)
+      VENDOR_NAME: "OT-Lab"
+      PRODUCT_CODE: "PM"
+      VENDOR_URL: "https://github.com/<you>/ot-security-lab"
+      PRODUCT_NAME: "Pymodbus-PM"
+      MODEL_NAME: "Pymodbus-PM-2.3.0"
+    volumes:
+      - ./modbus-config.json:/app/server_config.json:ro

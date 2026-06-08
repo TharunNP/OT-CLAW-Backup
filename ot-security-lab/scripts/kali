@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# kali — exec a command inside the persistent kali-red container.
+# Engagements are mounted at /engagements inside the container.
+#
+# Usage:
+#   kali                                   # interactive shell
+#   kali nmap -sV -p 502 192.168.1.95      # run as argv
+#   kali -c 'cmd1; cmd2 | cmd3'            # run a shell pipeline
+#
+set -euo pipefail
+
+CONTAINER="${KALI_CONTAINER:-kali-red}"
+
+state=$(docker inspect -f '{{.State.Status}}' "$CONTAINER" 2>/dev/null || true)
+if [ -z "$state" ]; then
+  echo "kali-red container does not exist." >&2
+  echo "Build:  docker build -t kali-red:latest docker/kali-red/" >&2
+  echo "Start:  ./scripts/start-kali-red.sh" >&2
+  exit 1
+fi
+if [ "$state" != "running" ]; then
+  docker start "$CONTAINER" >/dev/null
+fi
+
+if [ $# -eq 0 ]; then
+  exec docker exec -it "$CONTAINER" bash
+fi
+
+if [ "$1" = "-c" ]; then
+  shift
+  script="$*"
+  b64=$(printf '%s' "$script" | base64 -w0)
+  exec docker exec "$CONTAINER" bash -lc "echo $b64 | base64 -d | bash"
+fi
+
+# argv form — keep tokens intact
+cmd=""
+for arg in "$@"; do
+  cmd+=" $(printf '%q' "$arg")"
+done
+b64=$(printf '%s' "$cmd" | base64 -w0)
+exec docker exec "$CONTAINER" bash -lc "echo $b64 | base64 -d | bash"

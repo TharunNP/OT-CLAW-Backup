@@ -1,0 +1,34 @@
+{
+  "_comment": "Pymodbus simulator config — small populated address space for practice",
+  "server_list": {
+    "default_server": {
+      "comm": "tcp",
+      "host": "0.0.0.0",
+      "port": 502,
+      "framer": "socket"
+    }
+  },
+  "device_list": {
+    "device": {
+      "setup": {
+        "co size": 100,
+        "di size": 100,
+        "hr size": 100,
+        "ir size": 100,
+        "shared blocks": true,
+        "type exception": false,
+        "defaults": {
+          "value": { "bits": 0, "uint16": 0, "uint32": 0, "float32": 0.0, "string": "X" },
+          "action": null
+        }
+      },
+      "invalid": [],
+      "write": [],
+      "bits": [],
+      "uint16": [],
+      "uint32": [],
+      "float32": [],
+      "string": []
+    }
+  }
+}
